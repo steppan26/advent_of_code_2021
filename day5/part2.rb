@@ -516,34 +516,68 @@ end
 
 hash = {}
 
-values_array.each_with_index do |_, index|
+values_array.each_with_index do |row, index|
   x1 = values_array[index][0][0]
   x2 = values_array[index][1][0]
   y1 = values_array[index][0][1]
   y2 = values_array[index][1][1]
-  next if x1 != x2 && y1 != y2
+  x = []
+  y = []
+  diagonal = false
 
-  x = if x1 == x2
-        [x1]
-      elsif x1 < x2
-        (x1..x2).to_a
+  if x1 != x2 && y1 != y2
+    diagonal = true
+    x = if x1 == x2
+          [x1]
+        elsif x1 < x2
+          (x1..x2).to_a
+        else
+          (x2..x1).to_a.reverse
+        end
+    y = if y1 == y2
+          [y1]
+        elsif y1 < y2
+          (y1..y2).to_a
+        else
+          (y2..y1).to_a.reverse
+        end
+    diag_coords = x.each_with_index.map do |x_val, x_index|
+      [x_val, y[x_index]]
+    end
+  else
+    x = if x1 == x2
+          [x1]
+        elsif x1 < x2
+          (x1..x2).to_a
+        else
+          (x2..x1).to_a
+        end
+    y = if y1 == y2
+          [y1]
+        elsif y1 < y2
+          (y1..y2).to_a
+        else
+          (y2..y1).to_a
+        end
+  end
+
+  if diagonal
+    diag_coords.each do |diag_coord|
+      if hash["#{diag_coord[0]}, #{diag_coord[1]}"]
+        hash["#{diag_coord[0]}, #{diag_coord[1]}"] += 1
       else
-        (x2..x1).to_a
+        hash["#{diag_coord[0]}, #{diag_coord[1]}"] = 0
       end
-  y = if y1 == y2
-        [y1]
-      elsif y1 < y2
-        (y1..y2).to_a
-      else
-        (y2..y1).to_a
-      end
-  x.each do |x_pos|
-    coordinates = y.map { |y_pos| [x_pos, y_pos] }
-    coordinates.each do |coordinate|
-      if hash["#{coordinate[0]}, #{coordinate[1]}"]
-        hash["#{coordinate[0]}, #{coordinate[1]}"] += 1
-      else
-        hash["#{coordinate[0]}, #{coordinate[1]}"] = 0
+    end
+  else
+    x.each do |x_pos|
+      coordinates = y.map { |y_pos| [x_pos, y_pos] }
+      coordinates.each do |coordinate|
+        if hash["#{coordinate[0]}, #{coordinate[1]}"]
+          hash["#{coordinate[0]}, #{coordinate[1]}"] += 1
+        else
+          hash["#{coordinate[0]}, #{coordinate[1]}"] = 0
+        end
       end
     end
   end
